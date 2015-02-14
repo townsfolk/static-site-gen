@@ -1,0 +1,29 @@
+plugins {
+	id "groovy"
+	id 'nu.studer.plugindev' version '1.0.3'
+}
+
+dependencies {
+	compile gradleApi()
+	compile localGroovy()
+}
+
+group = 'com.github.townsfolk.sitegen'
+version = '0.5.0'
+
+plugindev {
+	pluginImplementationClass 'com.github.townsfolk.sitegen.SiteGenPlugin'
+	pluginDescription 'Gradle plugin that generates static websites from data and templates.'
+	pluginLicenses 'Apache-2.0'
+	pluginTags 'gradle', 'plugin', 'townsfolk', "static", "website", "template", "generate"
+	authorId 'townsfolk'
+	authorName 'Eric Berry'
+	authorEmail 'elberry@tellurianring.com'
+	projectUrl 'https://github.com/townsfolk/gradle-sitegen-plugin'
+	projectInceptionYear '2015'
+	done()
+}
+
+bintray {
+	pkg.repo = 'gradle-plugins'
+}
