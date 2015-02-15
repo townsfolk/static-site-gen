@@ -1,5 +1,7 @@
 package com.github.townsfolk.sitegen
 
+import groovy.text.SimpleTemplateEngine
+import groovy.text.Template
 import org.gradle.api.Project
 
 /**
@@ -12,6 +14,9 @@ class SimpleSiteGenPlugin extends SiteGenPlugin {
 	void apply(Project project) {
 		super.apply(project)
 		project.apply(plugin: 'groovy')
+		project.dependencies {
+			compile localGroovy()
+		}
 		project.sourceSets {
 			main {
 				groovy {
@@ -63,6 +68,7 @@ class SimpleSiteGenPlugin extends SiteGenPlugin {
 
 				File mainModel = createPage("model.groovy")
 				mainModel.text ?: (mainModel.text = '''
+				// Model scripts must return a map
 				[
 					title: "Hello World",
 					description: "A simple page",
@@ -77,9 +83,39 @@ class SimpleSiteGenPlugin extends SiteGenPlugin {
 		return {
 
 			inputs.files layoutsDir, siteDir
-			outputs.dir renderedDir
+			//outputs.dir renderedDir
 
 			doLast {
+				def shell = new GroovyShell()
+				def model = [:]
+				project.logger.debug("Collecting site data model.")
+				siteDir.eachFileRecurse { File file ->
+					if (file.name.endsWith("model.groovy")) {
+						project.logger.debug("Evaluating model file: ${file}")
+						def _model = shell.evaluate(file)
+						model.putAll(_model) // merge model with root
+					}
+				}
+
+				SimpleTemplateEngine engine = new SimpleTemplateEngine()
+				siteDir.eachFileRecurse { File file ->
+					if (file.name.endsWith(".gsp")) {
+						Template template = engine.createTemplate(file.newReader())
+						def renderedText = template.make(model)
+						println "Processing file: $file"
+						println renderedText
+
+						String cleanName = file.name - ".gsp"
+						cleanName += ".html"
+						String cleanPath = file.parentFile.path - siteDir.path
+
+						File renderedFile = new File(cleanPath, cleanName)
+						println "Rendered file: $renderedFile"
+
+						renderedFile = new File(renderedDir, renderedFile.path)
+						renderedFile.text = renderedText
+					}
+				}
 			}
 		}
 	}
