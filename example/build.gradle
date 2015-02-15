@@ -1,0 +1,6 @@
+buildscript {
+	dependencies {
+		classpath files('../plugin/build/libs/plugin-0.5.0.jar') 
+	}
+}
+apply plugin: 'com.github.townsfolk.sitegen.simple'
