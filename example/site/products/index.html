@@ -1,0 +1,13 @@
+<html>
+   <head>
+      <title>${products.title}</title>
+   </head>
+   <body>
+      <h1>${products.header}</h1>
+      <ul>
+         <% products.values.each { product -> %>
+         <li><a href="./${product.name.toLowerCase()}/">${product.name}</a></li>
+         <% } %>
+      </ul>
+   </body>
+</html>
