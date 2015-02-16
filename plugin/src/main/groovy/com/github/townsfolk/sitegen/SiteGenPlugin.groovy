@@ -26,7 +26,7 @@ abstract class SiteGenPlugin implements Plugin<Project> {
 
 	abstract Closure getRenderTask()
 
-	private File createDirectory(String relativePath) {
+	protected File createDirectory(String relativePath) {
 		File dir = new File(relativePath)
 		dir.exists() ?: dir.mkdirs() ?: {
 			throw new GradleException("'$relativePath' directory didn't exist, and could not be created.")
@@ -34,9 +34,9 @@ abstract class SiteGenPlugin implements Plugin<Project> {
 		return dir
 	}
 
-	private File createFile(File directory, String relativePath) {
+	protected File createFile(File directory, String relativePath) {
 		File file = new File(directory, relativePath)
-		file.exists() ?: file.parentFile.mkdirs() ?: file.createNewFile() ?: {
+		file.exists() ?: (file.parentFile.exists() || file.parentFile.mkdirs()) && file.createNewFile() ?: {
 			throw new GradleException("'${file}' didn't exist, and could not be created.")
 		}
 		return file
